@@ -56,10 +56,9 @@ git clone https://github.com/Anpham120/quanlybansua_java.git
 
 # 3. Thêm JDBC Driver: Build Path → Add External JARs → lib/mysql-connector-j-9.2.0.jar
 
-# 4. Cấu hình MySQL (nếu khác mặc định):
+# 4. Cấu hình MySQL:
 #    Sửa src/dao/DatabaseConnection.java dòng 17-18
-#    TAI_KHOAN = "root"
-#    MAT_KHAU  = "root123"
+#    Đặt TAI_KHOAN và MAT_KHAU theo MySQL của bạn
 
 # 5. Chạy src/Main.java → DB tự tạo lần đầu
 ```
