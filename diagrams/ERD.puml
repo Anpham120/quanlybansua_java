@@ -1,0 +1,81 @@
+@startuml ERD
+
+' =====================================================
+'  SO DO THUC THE - QUAN HE (ERD)
+'  He thong Quan ly Ban Sua  (BAM SAT taoBang() 100%)
+' =====================================================
+
+skinparam linetype ortho
+skinparam classFontSize 11
+skinparam shadowing false
+
+!define PK(x) <b>x</b>
+!define FK(x) <i>x</i>
+
+entity "tai_khoan" as TK {
+    PK(id) : INT <<PK, AUTO_INCREMENT>>
+    --
+    ten_dang_nhap : VARCHAR(50) <<UNIQUE, NOT NULL>>
+    mat_khau : VARCHAR(100) <<NOT NULL>>
+    vai_tro : VARCHAR(20) <<DEFAULT 'nhan vien'>>
+}
+
+entity "nhan_vien" as NV {
+    PK(id) : INT <<PK, AUTO_INCREMENT>>
+    --
+    ho_ten : VARCHAR(100) <<NOT NULL>>
+    sdt : VARCHAR(15)
+    dia_chi : VARCHAR(200)
+    ngay_sinh : DATE
+    gioi_tinh : VARCHAR(5)
+    FK(id_tai_khoan) : INT <<FK, NULLABLE>>
+}
+
+entity "san_pham" as SP {
+    PK(id) : INT <<PK, AUTO_INCREMENT>>
+    --
+    ten_sp : VARCHAR(150) <<NOT NULL>>
+    loai : VARCHAR(50)
+    thuong_hieu : VARCHAR(100)
+    don_gia : DOUBLE <<NOT NULL>>
+    so_luong : INT <<DEFAULT 0>>
+    mo_ta : TEXT
+    ngay_san_xuat : DATE
+    han_su_dung : DATE
+}
+
+entity "khach_hang" as KH {
+    PK(id) : INT <<PK, AUTO_INCREMENT>>
+    --
+    ho_ten : VARCHAR(100) <<NOT NULL>>
+    sdt : VARCHAR(15)
+    dia_chi : VARCHAR(200)
+    diem_tich_luy : INT <<DEFAULT 0>>
+}
+
+entity "hoa_don" as HD {
+    PK(id) : INT <<PK, AUTO_INCREMENT>>
+    --
+    FK(id_nhan_vien) : INT <<FK, NULLABLE>>
+    FK(id_khach_hang) : INT <<FK, NULLABLE>>
+    ngay_lap : DATETIME <<DEFAULT CURRENT_TIMESTAMP>>
+    tong_tien : DOUBLE <<DEFAULT 0>>
+}
+
+entity "chi_tiet_hoa_don" as CT {
+    PK(id) : INT <<PK, AUTO_INCREMENT>>
+    --
+    FK(id_hoa_don) : INT <<FK>>
+    FK(id_san_pham) : INT <<FK>>
+    so_luong : INT <<NOT NULL>>
+    don_gia : DOUBLE <<NOT NULL>>
+    thanh_tien : DOUBLE <<NOT NULL>>
+}
+
+TK ||--o| NV : "1 - 0..1"
+NV ||--o{ HD : "1 - *"
+KH ||--o{ HD : "1 - *\n(NULL = Khach le)"
+HD ||--|{ CT : "1 - *"
+SP ||--o{ CT : "1 - *"
+
+@enduml

@@ -1,0 +1,73 @@
+@startuml UseCase
+
+' =====================================================
+'  SO DO USE CASE - HE THONG QUAN LY BAN SUA
+' =====================================================
+
+skinparam actorFontSize 13
+skinparam usecaseFontSize 11
+skinparam packageFontSize 14
+skinparam packageFontStyle bold
+
+left to right direction
+
+actor "Quan ly" as QL
+actor "Nhan vien" as NV
+
+rectangle "He thong Quan ly Ban Sua" {
+
+    usecase "UC01: Dang nhap" as UC01
+
+    ' --- Chuc nang Quan ly ---
+    usecase "UC02: Quan ly San pham" as UC02
+    usecase "UC03: Quan ly Khach hang" as UC03
+    usecase "UC04: Quan ly Nhan vien" as UC04
+    usecase "UC05: Quan ly Tai khoan" as UC05
+    usecase "UC06: Xem Hoa don" as UC06
+    usecase "UC07: Thong ke & Xuat CSV" as UC07
+
+    ' --- Chuc nang chung ---
+    usecase "UC08: Xem danh sach San pham" as UC08
+    usecase "UC10: Doi mat khau" as UC10
+
+    ' --- Chuc nang Nhan vien ---
+    usecase "UC09: Ban hang & Thanh toan" as UC09
+
+    ' --- Include/Extend cua UC09 ---
+    usecase "UC11: Tu dong tru ton kho" as UC11
+    usecase "UC12: Tu dong cong diem KH" as UC12
+    usecase "UC13: Chiet khau theo hang" as UC13
+    usecase "UC14: Dang ky KH moi tai quay" as UC14
+}
+
+' === Actor => Use Case ===
+QL --> UC02
+QL --> UC03
+QL --> UC04
+QL --> UC05
+QL --> UC06
+QL --> UC07
+QL --> UC08
+
+NV --> UC08
+NV --> UC09
+NV --> UC10
+
+' === Dang nhap la dieu kien bat buoc ===
+UC02 ..> UC01 : <<include>>
+UC03 ..> UC01 : <<include>>
+UC04 ..> UC01 : <<include>>
+UC05 ..> UC01 : <<include>>
+UC06 ..> UC01 : <<include>>
+UC07 ..> UC01 : <<include>>
+UC08 ..> UC01 : <<include>>
+UC09 ..> UC01 : <<include>>
+UC10 ..> UC01 : <<include>>
+
+' === Lien quan den Ban hang ===
+UC09 ..> UC11 : <<include>>
+UC09 ..> UC12 : <<include>>
+UC09 <.. UC13 : <<extend>>
+UC09 <.. UC14 : <<extend>>
+
+@enduml

@@ -1,0 +1,29 @@
+# === Java ===
+*.class
+*.jar
+!lib/*.jar
+*.war
+*.ear
+
+# === IDE (Eclipse / IntelliJ / VS Code) ===
+.settings/
+.classpath
+.project
+bin/
+out/
+.idea/
+*.iml
+.vscode/
+
+# === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Build ===
+target/
+build/
+
+# === Khong up ===
+skills/
+*.docx
