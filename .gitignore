@@ -27,3 +27,6 @@ build/
 # === Khong up ===
 skills/
 *.docx
+
+export-docx.js
+BAO_CAO_DO_AN.docx
