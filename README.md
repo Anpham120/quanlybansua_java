@@ -3,7 +3,7 @@
 Ứng dụng desktop quản lý cửa hàng kinh doanh sữa — Java Swing + MySQL, kiến trúc DAO–MVC.
 
 > **Bài tập lớn môn Lập trình Java** · HK2 năm học 2025–2026  
-> Trường Đại học Công nghiệp Hà Nội — Khoa Công nghệ Thông tin
+> Trường Đại học CMC — Khoa Công nghệ Thông tin
 
 ---
 
@@ -127,4 +127,4 @@ Thư mục `diagrams/` chứa 5 file PlantUML:
 
 ---
 
-*Đồ án môn Lập trình Java — Đại học Công nghiệp Hà Nội — 2026*
+*Đồ án môn Lập trình Java — Đại học CMC — 2026*
