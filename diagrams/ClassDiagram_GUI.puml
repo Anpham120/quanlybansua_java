@@ -223,17 +223,19 @@ class TableHelper {
     + {static} createSmallButton(text : String, bgColor : Color) : JButton
 }
 
-' === QUAN HE ===
-Main ..> LoginFrame : tao
-LoginFrame ..> MainFrame : mo khi dang nhap thanh cong
-MainFrame *-- BanHangPanel
-MainFrame *-- SanPhamPanel
-MainFrame *-- KhachHangPanel
-MainFrame *-- NhanVienPanel
-MainFrame *-- HoaDonPanel
-MainFrame *-- ThongKePanel
-MainFrame *-- TaiKhoanPanel
+class EventBus {
+    - {static} subscribers : Map<String, List<Consumer<Object>>>
+    + {static} SU_KIEN_THANH_TOAN : String
+    + {static} SU_KIEN_CAP_NHAT_SAN_PHAM : String
+    + {static} SU_KIEN_CAP_NHAT_KHACH_HANG : String
+    __
+    + {static} subscribe(event : String, handler : Consumer<Object>) : void
+    + {static} publish(event : String, data : Object) : void
+    + {static} unsubscribe(event : String) : void
+    + {static} clearAll() : void
+}
 
+' === QUAN HE: GUI → DAO ===
 LoginFrame ..> TaiKhoanDAO : dung
 BanHangPanel ..> HoaDonDAO : dung
 BanHangPanel ..> SanPhamDAO : dung
@@ -247,5 +249,43 @@ ThongKePanel ..> HoaDonDAO : dung
 ThongKePanel ..> SanPhamDAO : dung
 TaiKhoanPanel ..> TaiKhoanDAO : dung
 DoiMatKhauDialog ..> TaiKhoanDAO : dung
+
+' === QUAN HE: GUI → UTILS ===
+LoginFrame ..> UIConstants : dung
+MainFrame ..> UIConstants : dung
+BanHangPanel ..> UIConstants : dung
+BanHangPanel ..> AppConstants : dung
+SanPhamPanel ..> UIConstants : dung
+SanPhamPanel ..> AppConstants : dung
+SanPhamPanel ..> InputFilter : dung
+SanPhamPanel ..> TableHelper : dung
+KhachHangPanel ..> UIConstants : dung
+KhachHangPanel ..> AppConstants : dung
+KhachHangPanel ..> InputFilter : dung
+KhachHangPanel ..> TableHelper : dung
+NhanVienPanel ..> UIConstants : dung
+NhanVienPanel ..> InputFilter : dung
+NhanVienPanel ..> TableHelper : dung
+HoaDonPanel ..> UIConstants : dung
+HoaDonPanel ..> InputFilter : dung
+ThongKePanel ..> UIConstants : dung
+TaiKhoanPanel ..> UIConstants : dung
+DoiMatKhauDialog ..> UIConstants : dung
+
+' === QUAN HE: EVENTBUS (Phat/Dang ky) ===
+BanHangPanel ..> EventBus : phat su kien
+ThongKePanel ..> EventBus : lang nghe
+SanPhamPanel ..> EventBus : lang nghe
+
+' === QUAN HE: TAO DOI TUONG ===
+Main ..> LoginFrame : tao
+LoginFrame ..> MainFrame : mo khi dang nhap thanh cong
+MainFrame *-- BanHangPanel
+MainFrame *-- SanPhamPanel
+MainFrame *-- KhachHangPanel
+MainFrame *-- NhanVienPanel
+MainFrame *-- HoaDonPanel
+MainFrame *-- ThongKePanel
+MainFrame *-- TaiKhoanPanel
 
 @enduml

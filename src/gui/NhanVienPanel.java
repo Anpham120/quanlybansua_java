@@ -93,7 +93,7 @@ public class NhanVienPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.LINE_END;
 
-        // Helper tạo label không bị cắt
+        // Hàm tạo nhãn không bị cắt
         // Hàng 1: Họ tên | SĐT | Giới tính
         txtHoTen = new JTextField(15);  txtHoTen.setFont(UIConstants.FONT_TABLE);
         borderMacDinh = txtHoTen.getBorder(); // Lưu border gốc

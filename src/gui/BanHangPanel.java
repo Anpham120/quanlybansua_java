@@ -8,6 +8,7 @@ import model.KhachHang;
 import model.SanPham;
 import model.TaiKhoan;
 import utils.AppConstants;
+import utils.EventBus;
 import utils.UIConstants;
 
 import javax.swing.*;
@@ -18,6 +19,8 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.IntStream;
 
 /**
  * Panel Bán hàng (TV4): Chọn sản phẩm → Giỏ hàng → Thanh toán.
@@ -100,7 +103,7 @@ public class BanHangPanel extends JPanel {
     }
 
     // =========================================================
-    // PANEL TRÁI: Danh sách sản phẩm
+    // PHẦN TRÁI: Danh sách sản phẩm
     // =========================================================
     private JPanel taoPanelSanPham() {
         JPanel panel = new JPanel(new BorderLayout(0, 8));
@@ -162,7 +165,7 @@ public class BanHangPanel extends JPanel {
     }
 
     // =========================================================
-    // PANEL PHẢI: Giỏ hàng
+    // PHẦN PHẢI: Giỏ hàng
     // =========================================================
     private JPanel taoPanelGioHang() {
         JPanel panel = new JPanel(new BorderLayout(0, 8));
@@ -404,14 +407,19 @@ public class BanHangPanel extends JPanel {
         // Lấy giá từ danh sách song song (không cần gọi DB thêm)
         double gia = dsSPHienTai.get(dong).getDonGia();
 
-        // Gộp nếu đã có trong giỏ
-        for (ChiTietHoaDon ct : gioHang) {
-            if (ct.getIdSanPham() == idSP) {
-                ct.setSoLuong(ct.getSoLuong() + soLuong);
-                ct.setThanhTien(ct.getSoLuong() * ct.getDonGia());
-                capNhatBangGio(); return;
-            }
+        // Gộp nếu đã có trong giỏ — sử dụng Optional + luồng dữ liệu hàm
+        Optional<ChiTietHoaDon> coSan = gioHang.stream()
+                .filter(c -> c.getIdSanPham() == idSP)
+                .findFirst();
+
+        if (coSan.isPresent()) {
+            ChiTietHoaDon ctGop = coSan.get();
+            ctGop.setSoLuong(ctGop.getSoLuong() + soLuong);
+            ctGop.setThanhTien(ctGop.getSoLuong() * ctGop.getDonGia());
+            capNhatBangGio();
+            return;
         }
+
         ChiTietHoaDon ct = new ChiTietHoaDon();
         ct.setIdSanPham(idSP);
         ct.setTenSanPham(ten);
@@ -435,16 +443,21 @@ public class BanHangPanel extends JPanel {
 
     private void capNhatBangGio() {
         modelBangGio.setRowCount(0);
-        double tong = 0;
-        for (int i = 0; i < gioHang.size(); i++) {
+
+        // Sử dụng luồng số nguyên thay vì vòng lặp for truyền thống
+        IntStream.range(0, gioHang.size()).forEach(i -> {
             ChiTietHoaDon ct = gioHang.get(i);
             modelBangGio.addRow(new Object[]{
-                i + 1, ct.getTenSanPham(), ct.getSoLuong(),
-                fmtTien.format((long) ct.getDonGia()),
-                fmtTien.format((long) ct.getThanhTien())
+                    i + 1, ct.getTenSanPham(), ct.getSoLuong(),
+                    fmtTien.format((long) ct.getDonGia()),
+                    fmtTien.format((long) ct.getThanhTien())
             });
-            tong += ct.getThanhTien();
-        }
+        });
+
+        // Tính tổng bằng luồng dữ liệu hàm
+        double tong = gioHang.stream()
+                .mapToDouble(ChiTietHoaDon::getThanhTien)
+                .sum();
         lblTongTien.setText("Tổng cộng: " + fmtTien.format((long) tong) + " đ");
     }
 
@@ -505,6 +518,10 @@ public class BanHangPanel extends JPanel {
             cboKhachHang.setSelectedIndex(0);
             spinSoLuong.setValue(1);
             taiSanPham("");
+
+            // Phát sự kiện qua EventBus — ThongKePanel và SanPhamPanel sẽ tự cập nhật
+            EventBus.publish(EventBus.SU_KIEN_THANH_TOAN, idHD);
+            EventBus.publish(EventBus.SU_KIEN_CAP_NHAT_SAN_PHAM, null);
         } else {
             JOptionPane.showMessageDialog(this,
                 "Thanh toán thất bại!\nKiểm tra lại tồn kho hoặc kết nối cơ sở dữ liệu.",

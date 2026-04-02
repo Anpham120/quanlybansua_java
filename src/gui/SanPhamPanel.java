@@ -3,6 +3,7 @@ package gui;
 import dao.SanPhamDAO;
 import model.SanPham;
 import utils.AppConstants;
+import utils.EventBus;
 import utils.InputFilter;
 import utils.TableHelper;
 import utils.UIConstants;
@@ -71,6 +72,9 @@ public class SanPhamPanel extends JPanel {
 
         // Tải dữ liệu
         taiDuLieu();
+
+        // Đăng ký lắng nghe sự kiện: tự cập nhật bảng khi thanh toán trừ kho
+        EventBus.subscribe(EventBus.SU_KIEN_CAP_NHAT_SAN_PHAM, data -> taiDuLieu());
     }
 
     // ===== TẠO FORM NHẬP LIỆU =====

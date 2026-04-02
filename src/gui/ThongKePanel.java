@@ -2,6 +2,7 @@ package gui;
 
 import dao.HoaDonDAO;
 import dao.SanPhamDAO;
+import utils.EventBus;
 import utils.UIConstants;
 
 import javax.swing.*;
@@ -13,8 +14,10 @@ import java.io.PrintWriter;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Panel Thống kê doanh thu nâng cao.
@@ -32,13 +35,13 @@ public class ThongKePanel extends JPanel {
     private final SanPhamDAO sanPhamDAO = new SanPhamDAO();
     private final NumberFormat fmt = NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
 
-    // KPI labels
+    // Nhãn KPI
     private JLabel lblDoanhThu, lblSoHD, lblSapHetHan, lblHetHang;
 
-    // Date filter
+    // Bộ lọc ngày
     private JSpinner spinTuNgay, spinDenNgay;
 
-    // Chart + table
+    // Biểu đồ + bảng
     private BarChartPanel chartPanel;
     private DefaultTableModel modelTop;
 
@@ -67,10 +70,15 @@ public class ThongKePanel extends JPanel {
                 if (!dangLocKhoang) taiDuLieu();
             }
         });
+
+        // Đăng ký lắng nghe sự kiện: tự cập nhật khi BanHangPanel thanh toán thành công
+        EventBus.subscribe(EventBus.SU_KIEN_THANH_TOAN, data -> {
+            if (!dangLocKhoang) taiDuLieu();
+        });
     }
 
     // =========================================================
-    // BUILDER
+    // XÂY DỰNG GIAO DIỆN
     // =========================================================
 
     private JPanel taoHeader() {
@@ -230,34 +238,67 @@ public class ThongKePanel extends JPanel {
     }
 
     // =========================================================
-    // LOGIC
+    // XỬ LÝ NGHIỆP VỤ
     // =========================================================
 
-    /** Tải dữ liệu mặc định (hôm nay / tháng này / 7 ngày). */
+    /**
+     * Tải dữ liệu mặc định (hôm nay / 7 ngày) bằng SwingWorker.
+     * doInBackground(): chạy trên background thread — gọi DB không block UI.
+     * done(): chạy trên EDT — cập nhật giao diện an toàn.
+     */
+    @SuppressWarnings("unchecked")
     private void taiDuLieu() {
-        double dtHomNay = hoaDonDAO.doanhThuHomNay();
-        int soHD        = hoaDonDAO.soHoaDonHomNay();
-        int sapHetHan   = sanPhamDAO.demSapHetHan(7);
-        int hetHang     = sanPhamDAO.demHetHang();
+        new SwingWorker<Map<String, Object>, Void>() {
+            @Override
+            protected Map<String, Object> doInBackground() {
+                // Chạy trên background thread — không block giao diện
+                Map<String, Object> result = new HashMap<>();
+                result.put("doanhThu", hoaDonDAO.doanhThuHomNay());
+                result.put("soHD", hoaDonDAO.soHoaDonHomNay());
+                result.put("sapHetHan", sanPhamDAO.demSapHetHan(7));
+                result.put("hetHang", sanPhamDAO.demHetHang());
+                result.put("chart", hoaDonDAO.doanhThu7Ngay());
+                result.put("top5", hoaDonDAO.topSanPham(5));
+                return result;
+            }
 
-        lblDoanhThu.setText(fmt.format((long) dtHomNay) + " đ");
+            @Override
+            protected void done() {
+                try {
+                    // Cập nhật UI trên EDT (Event Dispatch Thread)
+                    Map<String, Object> r = get();
+                    capNhatKPI(
+                            (double) r.get("doanhThu"),
+                            (int) r.get("soHD"),
+                            (int) r.get("sapHetHan"),
+                            (int) r.get("hetHang")
+                    );
+                    chartPanel.setData((List<Object[]>) r.get("chart"));
+                    chartPanel.repaint();
+                    capNhatTop5((List<Object[]>) r.get("top5"));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }.execute();
+    }
+
+    /** Cập nhật 4 thẻ KPI trên giao diện. */
+    private void capNhatKPI(double doanhThu, int soHD, int sapHetHan, int hetHang) {
+        lblDoanhThu.setText(fmt.format((long) doanhThu) + " đ");
         lblSoHD.setText(String.valueOf(soHD));
         lblSapHetHan.setText(String.valueOf(sapHetHan));
         lblHetHang.setText(String.valueOf(hetHang));
 
-        // Highlight cảnh báo
+        // Tô màu cảnh báo
         lblSapHetHan.setForeground(sapHetHan > 0 ? new Color(230, 126, 34) : UIConstants.SUCCESS);
         lblHetHang.setForeground(hetHang > 0 ? UIConstants.DANGER : UIConstants.SUCCESS);
-
-        // Biểu đồ 7 ngày
-        chartPanel.setData(hoaDonDAO.doanhThu7Ngay());
-        chartPanel.repaint();
-
-        // Top 5
-        capNhatTop5(hoaDonDAO.topSanPham(5));
     }
 
-    /** Lọc thống kê theo khoảng ngày đã chọn. */
+    /**
+     * Lọc thống kê theo khoảng ngày đã chọn — dùng SwingWorker.
+     */
+    @SuppressWarnings("unchecked")
     private void locTheoKhoang() {
         java.util.Date tuUtil = (java.util.Date) spinTuNgay.getValue();
         java.util.Date denUtil = (java.util.Date) spinDenNgay.getValue();
@@ -272,33 +313,43 @@ public class ThongKePanel extends JPanel {
         java.sql.Date tuNgay = new java.sql.Date(tuUtil.getTime());
         java.sql.Date denNgay = new java.sql.Date(denUtil.getTime());
         dangLocKhoang = true;
-
-        // KPI theo khoảng
-        double dt = hoaDonDAO.doanhThuTheoKhoang(tuNgay, denNgay);
-        int soHD  = hoaDonDAO.soHoaDonTheoKhoang(tuNgay, denNgay);
-        int sapHetHan = sanPhamDAO.demSapHetHan(7);
-        int hetHang   = sanPhamDAO.demHetHang();
-
-        lblDoanhThu.setText(fmt.format((long) dt) + " đ");
-        lblSoHD.setText(String.valueOf(soHD));
-        lblSapHetHan.setText(String.valueOf(sapHetHan));
-        lblHetHang.setText(String.valueOf(hetHang));
-
-        lblSapHetHan.setForeground(sapHetHan > 0 ? new Color(230, 126, 34) : UIConstants.SUCCESS);
-        lblHetHang.setForeground(hetHang > 0 ? UIConstants.DANGER : UIConstants.SUCCESS);
-
-        // Biểu đồ theo khoảng
-        // Nếu khoảng > 31 ngày thì vẫn dùng 7 ngày mặc định, không quá dài
         long diffDays = (denUtil.getTime() - tuUtil.getTime()) / (1000 * 60 * 60 * 24);
-        if (diffDays <= 31) {
-            chartPanel.setData(hoaDonDAO.doanhThuTheoKhoangNgay(tuNgay, denNgay));
-        } else {
-            chartPanel.setData(hoaDonDAO.doanhThu7Ngay());
-        }
-        chartPanel.repaint();
 
-        // Top 5 theo khoảng
-        capNhatTop5(hoaDonDAO.topSanPhamTheoKhoang(5, tuNgay, denNgay));
+        new SwingWorker<Map<String, Object>, Void>() {
+            @Override
+            protected Map<String, Object> doInBackground() {
+                Map<String, Object> result = new HashMap<>();
+                result.put("doanhThu", hoaDonDAO.doanhThuTheoKhoang(tuNgay, denNgay));
+                result.put("soHD", hoaDonDAO.soHoaDonTheoKhoang(tuNgay, denNgay));
+                result.put("sapHetHan", sanPhamDAO.demSapHetHan(7));
+                result.put("hetHang", sanPhamDAO.demHetHang());
+                if (diffDays <= 31) {
+                    result.put("chart", hoaDonDAO.doanhThuTheoKhoangNgay(tuNgay, denNgay));
+                } else {
+                    result.put("chart", hoaDonDAO.doanhThu7Ngay());
+                }
+                result.put("top5", hoaDonDAO.topSanPhamTheoKhoang(5, tuNgay, denNgay));
+                return result;
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    Map<String, Object> r = get();
+                    capNhatKPI(
+                            (double) r.get("doanhThu"),
+                            (int) r.get("soHD"),
+                            (int) r.get("sapHetHan"),
+                            (int) r.get("hetHang")
+                    );
+                    chartPanel.setData((List<Object[]>) r.get("chart"));
+                    chartPanel.repaint();
+                    capNhatTop5((List<Object[]>) r.get("top5"));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }.execute();
     }
 
     private void capNhatTop5(List<Object[]> data) {
@@ -365,7 +416,7 @@ public class ThongKePanel extends JPanel {
     }
 
     // =========================================================
-    // HELPER
+    // HỖ TRỢ
     // =========================================================
     private JLabel taoLabel(String text) {
         JLabel lbl = new JLabel(text);

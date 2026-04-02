@@ -1,12 +1,16 @@
 import dao.DatabaseConnection;
 import gui.LoginFrame;
+
 import javax.swing.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Lớp khởi chạy ứng dụng Quản lý Bán Sữa.
- * 
+ * Sử dụng CompletableFuture để khởi tạo CSDL bất đồng bộ,
+ * tránh block luồng chính trong khi chờ kết nối MySQL.
+ *
  * Nhóm thực hiện:
- * 1. Phạm Duy An - BIT240002 (Nền tảng, Đăng nhập, Tài khoản)
+ * 1. Phạm Duy An - BIT240002 (Nền tảng, Đăng nhập, Tài khoản, EventBus)
  * 2. Bùi Đào Đức Anh - BIT240025 (Quản lý Sản phẩm)
  * 3. Đỗ Tuấn Anh - BIT240015 (Quản lý Khách hàng, Nhân viên)
  * 4. Nguyễn Quang Hiếu - BIT240091 (Bán hàng)
@@ -26,12 +30,22 @@ public class Main {
             System.out.println("Không thể sử dụng giao diện Nimbus.");
         }
 
-        // Khởi tạo cơ sở dữ liệu (tạo bảng + dữ liệu mẫu nếu chưa có)
-        DatabaseConnection.khoiTaoDatabase();
-
-        // Hiển thị màn hình đăng nhập
-        SwingUtilities.invokeLater(() -> {
-            new LoginFrame().setVisible(true);
-        });
+        // Khởi tạo CSDL bất đồng bộ bằng CompletableFuture
+        // runAsync(): chạy trên luồng nền (ForkJoinPool), không chặn luồng chính
+        // thenRun(): sau khi hoàn tất → hiển thị màn hình đăng nhập trên luồng giao diện
+        // exceptionally(): xử lý lỗi kết nối CSDL → hiện hộp thoại cảnh báo
+        CompletableFuture.runAsync(() -> DatabaseConnection.khoiTaoDatabase())
+                .thenRun(() -> SwingUtilities.invokeLater(() ->
+                        new LoginFrame().setVisible(true)
+                ))
+                .exceptionally(ex -> {
+                    System.err.println("Lỗi khởi tạo CSDL: " + ex.getMessage());
+                    SwingUtilities.invokeLater(() ->
+                            JOptionPane.showMessageDialog(null,
+                                    "Không thể kết nối cơ sở dữ liệu!\n" + ex.getMessage(),
+                                    "Lỗi khởi động", JOptionPane.ERROR_MESSAGE)
+                    );
+                    return null;
+                });
     }
 }

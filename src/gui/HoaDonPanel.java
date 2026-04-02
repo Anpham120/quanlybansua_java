@@ -59,7 +59,7 @@ public class HoaDonPanel extends JPanel {
     }
 
     // =========================================================
-    // PANEL TRÊN: filter + bảng hóa đơn
+    // PHẦN TRÊN: Bộ lọc + bảng hóa đơn
     // =========================================================
     private JPanel taoPanelTren() {
         JPanel panel = new JPanel(new BorderLayout(0, 8));
@@ -167,7 +167,7 @@ public class HoaDonPanel extends JPanel {
     }
 
     // =========================================================
-    // PANEL DƯỚI: chi tiết hóa đơn được chọn
+    // PHẦN DƯỚI: chi tiết hóa đơn được chọn
     // =========================================================
     private JPanel taoPanelChiTiet() {
         JPanel panel = new JPanel(new BorderLayout(0, 6));
@@ -211,7 +211,7 @@ public class HoaDonPanel extends JPanel {
     }
 
     // =========================================================
-    // LOGIC
+    // XỬ LÝ NGHIỆP VỤ
     // =========================================================
 
     /** Validate ngày rồi mới lọc. */
