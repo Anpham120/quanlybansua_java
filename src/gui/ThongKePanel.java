@@ -63,7 +63,7 @@ public class ThongKePanel extends JPanel {
 
         taiDuLieu();
 
-        // Tự động refresh khi chuyển sang tab Thống kê
+        // Tự động làm mới khi chuyển sang tab Thống kê
         addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent e) {
@@ -202,7 +202,7 @@ public class ThongKePanel extends JPanel {
         bangTop.getColumnModel().getColumn(1).setPreferredWidth(60);
         bangTop.getColumnModel().getColumn(2).setPreferredWidth(120);
 
-        // Zebra stripes + align
+        // Tô sọc xen kẽ + căn lề
         bangTop.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable t, Object v,
@@ -243,7 +243,7 @@ public class ThongKePanel extends JPanel {
 
     /**
      * Tải dữ liệu mặc định (hôm nay / 7 ngày) bằng SwingWorker.
-     * doInBackground(): chạy trên background thread — gọi DB không block UI.
+     * doInBackground(): chạy trên luồng nền — gọi DB không chặn giao diện.
      * done(): chạy trên EDT — cập nhật giao diện an toàn.
      */
     @SuppressWarnings("unchecked")
@@ -251,7 +251,7 @@ public class ThongKePanel extends JPanel {
         new SwingWorker<Map<String, Object>, Void>() {
             @Override
             protected Map<String, Object> doInBackground() {
-                // Chạy trên background thread — không block giao diện
+                // Chạy trên luồng nền — không chặn giao diện
                 Map<String, Object> result = new HashMap<>();
                 result.put("doanhThu", hoaDonDAO.doanhThuHomNay());
                 result.put("soHD", hoaDonDAO.soHoaDonHomNay());
@@ -425,7 +425,7 @@ public class ThongKePanel extends JPanel {
     }
 
     // =========================================================
-    // INNER: Bar chart thuần Graphics2D
+    // LỚP NỘI: Biểu đồ cột thuần Graphics2D
     // =========================================================
     static class BarChartPanel extends JPanel {
         private List<Object[]> data; // {label, value}
@@ -454,7 +454,7 @@ public class ThongKePanel extends JPanel {
             int w      = getWidth()  - pad * 2;
             int h      = getHeight() - pad - botPad;
 
-            // Max value
+            // Giá trị lớn nhất
             double maxVal = data.stream()
                 .mapToDouble(r -> (double) r[1]).max().orElse(1);
             if (maxVal == 0) maxVal = 1;
@@ -469,7 +469,7 @@ public class ThongKePanel extends JPanel {
                 int x    = pad + i * (w / data.size()) + (w / data.size() - barW) / 2;
                 int y    = pad + h - barH;
 
-                // Gradient bar
+                // Cột gradient
                 GradientPaint gp = new GradientPaint(x, y,
                     new Color(41, 128, 185), x, y + barH, new Color(108, 180, 238));
                 g2.setPaint(gp);
@@ -485,7 +485,7 @@ public class ThongKePanel extends JPanel {
                 int vx = x + (barW - fm.stringWidth(valStr)) / 2;
                 if (barH > 16) g2.drawString(valStr, vx, y - 3);
 
-                // Label ngày dưới
+                // Nhãn ngày phía dưới
                 g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
                 fm = g2.getFontMetrics();
                 int lx = x + (barW - fm.stringWidth(label)) / 2;

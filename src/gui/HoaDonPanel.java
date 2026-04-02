@@ -128,7 +128,7 @@ public class HoaDonPanel extends JPanel {
         bangHD.getColumnModel().getColumn(1).setCellRenderer(center);
         bangHD.getColumnModel().getColumn(5).setCellRenderer(right);
 
-        // Zebra stripes
+        // Tô sọc xen kẽ
         bangHD.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable t, Object v,
@@ -148,7 +148,7 @@ public class HoaDonPanel extends JPanel {
             }
         });
 
-        // Click vào hàng → load chi tiết
+        // Nhấp vào hàng → tải chi tiết
         bangHD.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && bangHD.getSelectedRow() >= 0)
                 hienChiTiet(bangHD.getSelectedRow());

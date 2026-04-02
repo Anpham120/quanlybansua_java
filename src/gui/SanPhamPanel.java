@@ -265,15 +265,15 @@ public class SanPhamPanel extends JPanel {
             bangSanPham.getColumnModel().getColumn(i).setPreferredWidth(doRong[i]);
         }
 
-        // Căn phải cột Đơn giá (index 4), căn giữa cột Số lượng (index 5) và ID (index 0)
+        // Căn phải cột Đơn giá (index 5), căn giữa cột STT (index 0) và Số lượng (index 6)
         DefaultTableCellRenderer canPhai = new DefaultTableCellRenderer();
         canPhai.setHorizontalAlignment(SwingConstants.RIGHT);
-        bangSanPham.getColumnModel().getColumn(4).setCellRenderer(canPhai);
+        bangSanPham.getColumnModel().getColumn(5).setCellRenderer(canPhai);
 
         DefaultTableCellRenderer canGiua = new DefaultTableCellRenderer();
         canGiua.setHorizontalAlignment(SwingConstants.CENTER);
         bangSanPham.getColumnModel().getColumn(0).setCellRenderer(canGiua);
-        bangSanPham.getColumnModel().getColumn(5).setCellRenderer(canGiua);
+        bangSanPham.getColumnModel().getColumn(6).setCellRenderer(canGiua);
 
         // Click vào bảng → điền form
         bangSanPham.addMouseListener(new MouseAdapter() {

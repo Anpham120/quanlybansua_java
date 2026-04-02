@@ -31,7 +31,7 @@ public class TableHelper {
         table.setShowGrid(true);
         table.setIntercellSpacing(new Dimension(1, 1));
 
-        // Header style
+        // Kiểu dáng tiêu đề
         JTableHeader header = table.getTableHeader();
         header.setFont(UIConstants.FONT_TABLE_HEADER);
         header.setBackground(UIConstants.PRIMARY);

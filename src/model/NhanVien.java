@@ -29,7 +29,7 @@ public class NhanVien {
         this.idTaiKhoan = idTaiKhoan;
     }
 
-    // Getters & Setters
+    // Phương thức truy cập và thiết lập
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

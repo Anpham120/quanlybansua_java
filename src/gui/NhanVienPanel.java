@@ -185,7 +185,7 @@ public class NhanVienPanel extends JPanel {
         bangNV.getTableHeader().setFont(UIConstants.FONT_TABLE_HEADER);
         bangNV.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        int[] doRong = {40, 40, 180, 120, 70, 100, 250};
+        int[] doRong = {40, 40, 180, 120, 70, 100, 250, 120};
         for (int i = 0; i < doRong.length; i++) {
             bangNV.getColumnModel().getColumn(i).setPreferredWidth(doRong[i]);
         }

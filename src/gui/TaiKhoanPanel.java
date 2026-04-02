@@ -196,7 +196,7 @@ public class TaiKhoanPanel extends JPanel {
 
         // ===== SỰ KIỆN =====
 
-        // Click vào hàng trong bảng → load lên form
+        // Nhấp vào hàng trong bảng → điền lên form
         bangTaiKhoan.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 int dong = bangTaiKhoan.getSelectedRow();

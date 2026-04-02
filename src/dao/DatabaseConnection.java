@@ -45,7 +45,7 @@ public class DatabaseConnection {
         taoCSDL();
         taoBang();
         themDuLieuMau();
-        System.out.println("=== Co so du lieu da duoc khoi tao thanh cong! ===");
+        System.out.println("=== Cơ sở dữ liệu đã được khởi tạo thành công! ===");
     }
 
     private static void taoCSDL() {
@@ -54,7 +54,7 @@ public class DatabaseConnection {
             stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + TEN_CSDL
                     + " CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
         } catch (SQLException e) {
-            System.err.println("Loi tao CSDL: " + e.getMessage());
+            System.err.println("Lỗi tạo CSDL: " + e.getMessage());
         }
     }
 
@@ -127,9 +127,9 @@ public class DatabaseConnection {
                     + "FOREIGN KEY (id_san_pham) REFERENCES san_pham(id)"
                     + ")");
 
-            System.out.println("Tat ca bang da duoc tao thanh cong.");
+            System.out.println("Tất cả bảng đã được tạo thành công.");
         } catch (SQLException e) {
-            System.err.println("Loi tao bang: " + e.getMessage());
+            System.err.println("Lỗi tạo bảng: " + e.getMessage());
         }
     }
 
@@ -141,7 +141,7 @@ public class DatabaseConnection {
             ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM tai_khoan");
             rs.next();
             if (rs.getInt(1) > 0) {
-                System.out.println("Du lieu mau da ton tai, bo qua.");
+                System.out.println("Dữ liệu mẫu đã tồn tại, bỏ qua.");
                 return;
             }
 
@@ -188,9 +188,9 @@ public class DatabaseConnection {
                     + "('Đặng Thị Ngọc', '0944567890', '88 Kim Mã, Ba Đình, Hà Nội', 200), "
                     + "('Lý Thanh Tùng', '0955678901', '64 Trường Chinh, Thanh Xuân, Hà Nội', 75)");
 
-            System.out.println("Du lieu mau da duoc them thanh cong.");
+            System.out.println("Dữ liệu mẫu đã được thêm thành công.");
         } catch (SQLException e) {
-            System.err.println("Loi them du lieu mau: " + e.getMessage());
+            System.err.println("Lỗi thêm dữ liệu mẫu: " + e.getMessage());
         }
     }
 }
