@@ -55,12 +55,11 @@ public class BanHangPanel extends JPanel {
     private JTextField txtTimSDT;
     private boolean[] dangSync = {false};
 
-    // Danh sách SP đang hiển thị trong bảng (để lấy giá mà không cần DB call thêm)
+    // Danh sách SP hiện tại trên bảng
     private final List<SanPham> dsSPHienTai = new ArrayList<>();
 
     // ===== CONSTRUCTOR =====
     public BanHangPanel(TaiKhoan taiKhoan) {
-        // Tìm ID nhân viên liên kết với tài khoản đăng nhập
         this.idNhanVien = hoaDonDAO.layIdNhanVienTheoTaiKhoan(taiKhoan.getId());
         setLayout(new BorderLayout(10, 10));
         setBackground(UIConstants.BG_MAIN);
@@ -175,7 +174,7 @@ public class BanHangPanel extends JPanel {
             BorderFactory.createEmptyBorder(10, 10, 10, 10)
         ));
 
-        // ── Tạo controls trước, wire listeners sau (tránh NPE/vòng lặp) ──
+        // Tạo controls trước, gắn sự kiện sau
         cboKhachHang = new JComboBox<>();
         cboKhachHang.setFont(UIConstants.FONT_TABLE);
         cboKhachHang.setPreferredSize(new Dimension(230, 30));
@@ -188,7 +187,7 @@ public class BanHangPanel extends JPanel {
         txtTimSDT.setPreferredSize(new Dimension(120, 28));
         txtTimSDT.setToolTipText("Nhập SĐT → tự động tìm khách hàng thành viên");
 
-        // Chỉ cho nhập số vào txtTimSDT
+        // Chỉ cho nhập số
         ((javax.swing.text.AbstractDocument) txtTimSDT.getDocument())
             .setDocumentFilter(new javax.swing.text.DocumentFilter() {
                 public void insertString(FilterBypass fb, int o, String s,
@@ -201,7 +200,7 @@ public class BanHangPanel extends JPanel {
                 }
             });
 
-        // Listener: gõ SĐT → tự chọn ComboBox
+        // Gõ SĐT → tự chọn ComboBox
         txtTimSDT.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             private void tim() {
                 if (dangSync[0]) return;
@@ -233,7 +232,7 @@ public class BanHangPanel extends JPanel {
             public void changedUpdate(javax.swing.event.DocumentEvent e) {}
         });
 
-        // Listener: chọn ComboBox → cập nhật badge hạng + sync SĐT
+        // Chọn ComboBox → cập nhật hạng + SĐT
         cboKhachHang.addActionListener(e -> {
             if (dangSync[0]) return;
             Object sel = cboKhachHang.getSelectedItem();
@@ -404,10 +403,9 @@ public class BanHangPanel extends JPanel {
             return;
         }
 
-        // Lấy giá từ danh sách song song (không cần gọi DB thêm)
         double gia = dsSPHienTai.get(dong).getDonGia();
 
-        // Gộp nếu đã có trong giỏ — sử dụng Optional + luồng dữ liệu hàm
+        // Gộp nếu đã có trong giỏ
         Optional<ChiTietHoaDon> coSan = gioHang.stream()
                 .filter(c -> c.getIdSanPham() == idSP)
                 .findFirst();
@@ -444,7 +442,7 @@ public class BanHangPanel extends JPanel {
     private void capNhatBangGio() {
         modelBangGio.setRowCount(0);
 
-        // Sử dụng luồng số nguyên thay vì vòng lặp for truyền thống
+        // Duyệt giỏ hàng bằng IntStream
         IntStream.range(0, gioHang.size()).forEach(i -> {
             ChiTietHoaDon ct = gioHang.get(i);
             modelBangGio.addRow(new Object[]{
@@ -454,7 +452,7 @@ public class BanHangPanel extends JPanel {
             });
         });
 
-        // Tính tổng bằng luồng dữ liệu hàm
+        // Tính tổng bằng Stream
         double tong = gioHang.stream()
                 .mapToDouble(ChiTietHoaDon::getThanhTien)
                 .sum();
@@ -519,7 +517,7 @@ public class BanHangPanel extends JPanel {
             spinSoLuong.setValue(1);
             taiSanPham("");
 
-            // Phát sự kiện qua EventBus — ThongKePanel và SanPhamPanel sẽ tự cập nhật
+            // Phát sự kiện → các module khác tự cập nhật
             EventBus.publish(EventBus.SU_KIEN_THANH_TOAN, idHD);
             EventBus.publish(EventBus.SU_KIEN_CAP_NHAT_SAN_PHAM, null);
         } else {
@@ -533,10 +531,7 @@ public class BanHangPanel extends JPanel {
     // HỖ TRỢ
     // =========================================================
 
-    /**
-     * Dialog đăng ký nhanh khách hàng thành viên tại quầy.
-     * Sau khi lưu, tự động refresh ComboBox và chọn khách vừa đăng ký.
-     */
+    /** Đăng ký nhanh khách hàng thành viên tại quầy. */
     private void dangKyNhanhKH(String sdtMacDinh) {
         JDialog dlg = new JDialog((java.awt.Frame) SwingUtilities.getWindowAncestor(this),
                 "Đăng ký khách hàng thành viên", true);
@@ -555,7 +550,6 @@ public class BanHangPanel extends JPanel {
         JTextField txtSdt = new JTextField(16); txtSdt.setFont(UIConstants.FONT_TABLE);
         JTextField txtDia = new JTextField(16); txtDia.setFont(UIConstants.FONT_TABLE);
 
-        // Điền sẵn SĐT đã gõ trước đó
         if (sdtMacDinh != null && !sdtMacDinh.isEmpty()) {
             txtSdt.setText(sdtMacDinh);
         }
@@ -614,7 +608,6 @@ public class BanHangPanel extends JPanel {
 
             if (khachHangDAO.them(kh)) {
                 dlg.dispose();
-                // Chặn listener cascade khi refresh ComboBox
                 dangSync[0] = true;
                 taiDanhSachKhachHang();
                 for (int i = 1; i < cboKhachHang.getItemCount(); i++) {

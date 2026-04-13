@@ -58,10 +58,10 @@ public class SanPhamPanel extends JPanel {
         lblTieuDe.setForeground(UIConstants.PRIMARY);
         add(lblTieuDe, BorderLayout.NORTH);
 
-        // === PHẦN TRÊN: Form nhập liệu ===
+        // Form nhập liệu
         JPanel panelForm = taoPanelForm();
         
-        // === PHẦN DƯỚI: Bảng ===
+        // Bảng dữ liệu
         JPanel panelBang = taoPanelBang();
 
         // SplitPane chia trên/dưới
@@ -110,7 +110,6 @@ public class SanPhamPanel extends JPanel {
         btnTimKiem.addActionListener(e -> timKiem());
         panelTimKiem.add(btnTimKiem);
 
-        // Nhấn Enter trong ô tìm kiếm cũng tìm
         txtTimKiem.addActionListener(e -> timKiem());
 
         panelChua.add(panelTimKiem, BorderLayout.NORTH);
@@ -150,17 +149,14 @@ public class SanPhamPanel extends JPanel {
         txtSoLuong = new JTextField(10);
         txtSoLuong.setFont(UIConstants.FONT_TABLE);
 
-        // Chặn nhập chữ vào ô Số lượng (chỉ cho nhập số)
         InputFilter.applyDigitsOnly(txtSoLuong);
-
-        // Chặn nhập chữ vào ô Đơn giá (chỉ cho nhập số và dấu chấm phân cách)
         InputFilter.applyDigitsAndDot(txtDonGia);
 
         // JSpinner chọn ngày
         spinNSX = taoSpinnerNgay();
         spinHSD = taoSpinnerNgay();
 
-        // Tự động format giá REAL-TIME khi gõ (20000 → 20.000)
+        // Định dạng giá thời gian thực (20000 → 20.000)
         txtDonGia.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             private boolean dangCapNhat = false;
 
@@ -265,7 +261,7 @@ public class SanPhamPanel extends JPanel {
             bangSanPham.getColumnModel().getColumn(i).setPreferredWidth(doRong[i]);
         }
 
-        // Căn phải cột Đơn giá (index 5), căn giữa cột STT (index 0) và Số lượng (index 6)
+        // Căn phải cột Đơn giá, căn giữa cột STT và Số lượng
         DefaultTableCellRenderer canPhai = new DefaultTableCellRenderer();
         canPhai.setHorizontalAlignment(SwingConstants.RIGHT);
         bangSanPham.getColumnModel().getColumn(5).setCellRenderer(canPhai);
@@ -275,7 +271,7 @@ public class SanPhamPanel extends JPanel {
         bangSanPham.getColumnModel().getColumn(0).setCellRenderer(canGiua);
         bangSanPham.getColumnModel().getColumn(6).setCellRenderer(canGiua);
 
-        // Click vào bảng → điền form
+        // Nhấp bảng → điền form
         bangSanPham.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 dienFormTuBang();

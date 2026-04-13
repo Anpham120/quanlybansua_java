@@ -27,7 +27,7 @@ import java.util.Map;
  * - Top 5 SP bán chạy
  * - Xuất báo cáo CSV
  *
- * @author Nguyễn Quang Hiếu - BIT240082
+ * @author Phan Văn Hiếu - BIT240094
  */
 public class ThongKePanel extends JPanel {
 
@@ -241,17 +241,13 @@ public class ThongKePanel extends JPanel {
     // XỬ LÝ NGHIỆP VỤ
     // =========================================================
 
-    /**
-     * Tải dữ liệu mặc định (hôm nay / 7 ngày) bằng SwingWorker.
-     * doInBackground(): chạy trên luồng nền — gọi DB không chặn giao diện.
-     * done(): chạy trên EDT — cập nhật giao diện an toàn.
-     */
+    /** Tải dữ liệu mặc định bằng SwingWorker (luồng nền → cập nhật EDT). */
     @SuppressWarnings("unchecked")
     private void taiDuLieu() {
         new SwingWorker<Map<String, Object>, Void>() {
             @Override
             protected Map<String, Object> doInBackground() {
-                // Chạy trên luồng nền — không chặn giao diện
+
                 Map<String, Object> result = new HashMap<>();
                 result.put("doanhThu", hoaDonDAO.doanhThuHomNay());
                 result.put("soHD", hoaDonDAO.soHoaDonHomNay());
@@ -265,7 +261,7 @@ public class ThongKePanel extends JPanel {
             @Override
             protected void done() {
                 try {
-                    // Cập nhật UI trên EDT (Event Dispatch Thread)
+
                     Map<String, Object> r = get();
                     capNhatKPI(
                             (double) r.get("doanhThu"),

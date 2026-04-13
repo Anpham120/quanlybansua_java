@@ -1,6 +1,6 @@
 # 🥛 Hệ thống Quản lý Bán Sữa
 
-Ứng dụng desktop quản lý cửa hàng kinh doanh sữa — Java Swing + MySQL, kiến trúc DAO–MVC.
+Ứng dụng desktop quản lý cửa hàng kinh doanh sữa — **Java Swing + MySQL**, kiến trúc **DAO–MVC**.
 
 > **Bài tập lớn môn Lập trình Java** · HK2 năm học 2025–2026  
 > Trường Đại học CMC — Khoa Công nghệ Thông tin
@@ -14,29 +14,35 @@
 | 🔐 Đăng nhập | Xác thực + phân quyền Quản lý / Nhân viên |
 | 🛒 Bán hàng | Giỏ hàng, chiết khấu thành viên, thanh toán (JDBC Transaction) |
 | 📦 Sản phẩm | CRUD sữa, lọc loại, tô màu tồn kho (hết hàng = đỏ, sắp hết = cam) |
-| 👥 Khách hàng | CRUD thành viên, điểm tích lũy, hạng tự động (Thường → Bạc → Vàng → Kim cương) |
-| 👨‍💼 Nhân viên | CRUD nhân sự, liên kết tài khoản, validate tuổi ≥ 18 |
+| 👥 Khách hàng | CRUD thành viên, điểm tích lũy, hạng tự động |
+| 👨‍💼 Nhân viên | CRUD nhân sự, liên kết tài khoản, kiểm tra tuổi ≥ 18 |
 | 🧾 Hóa đơn | Lịch sử giao dịch, lọc theo ngày/SĐT, xem chi tiết |
 | 📊 Thống kê | Dashboard KPI, biểu đồ doanh thu (Graphics2D), Top 5 SP, xuất CSV |
 | 🔑 Tài khoản | CRUD tài khoản, phân vai trò |
 | 🔒 Đổi mật khẩu | Nhân viên tự đổi MK cá nhân |
 
-## 🏗️ Kiến trúc
+## 🏗️ Kiến trúc nâng cao
+
+Ngoài mô hình DAO–MVC cơ bản, dự án tích hợp **3 kỹ thuật nâng cao**:
+
+| Kỹ thuật | Lớp áp dụng | Mô tả |
+|---|---|---|
+| **Lập trình bất đồng bộ** | `Main`, `ThongKePanel` | `CompletableFuture` khởi tạo CSDL; `SwingWorker` tải dữ liệu không chặn giao diện |
+| **Lập trình hàm (FP)** | `BanHangPanel` | `Stream API`, `Optional`, `IntStream` xử lý giỏ hàng |
+| **Kiến trúc thông điệp** | `EventBus` | Pub/Sub giữa các module — tự cập nhật dữ liệu khi thanh toán |
 
 ```
 src/
-├── Main.java                    ← Entry point
+├── Main.java                    ← Điểm khởi chạy (CompletableFuture)
 ├── model/    (6 POJO)           ← Tầng Model
 ├── dao/      (6 DAO + DB)       ← Tầng Data Access
 ├── gui/      (10 Swing UI)      ← Tầng View
-└── utils/    (4 helper)         ← Tiện ích dùng chung
+└── utils/    (5 tiện ích)       ← EventBus, UIConstants, AppConstants, InputFilter, TableHelper
 ```
-
-**Design Pattern:** DAO · MVC · Static Factory · Observer (Swing Events)
 
 ## 🗃️ Cơ sở dữ liệu
 
-MySQL 8.x — **Tự động tạo** DB + bảng + 17 sản phẩm mẫu khi chạy lần đầu.
+MySQL 8.x — **Tự động tạo** DB + bảng + dữ liệu mẫu khi chạy lần đầu.
 
 ```
 tai_khoan ←1:1→ nhan_vien ←1:N→ hoa_don ←1:N→ chi_tiet_hoa_don →N:1→ san_pham
@@ -99,21 +105,11 @@ git clone https://github.com/Anpham120/quanlybansua_java.git
 
 | STT | Họ và tên | MSSV | Công việc chính |
 |---|---|---|---|
-| 1 | Phạm Duy An | BIT240002 | Kiến trúc, DatabaseConnection, LoginFrame, MainFrame, TaiKhoanPanel, UIConstants |
-| 2 | Bùi Đào Đức Anh | BIT240025 | SanPhamPanel, SanPhamDAO, lọc loại, tô màu tồn kho |
-| 3 | Đỗ Tuấn Anh | BIT240015 | KhachHangPanel, NhanVienPanel, DAO tương ứng, Model KhachHang |
-| 4 | Nguyễn Quang Hiếu | BIT240082 | BanHangPanel, HoaDonDAO Transaction, chiết khấu, tích điểm |
-| 5 | Phan Văn Hiếu | BIT240094 | HoaDonPanel, ThongKePanel, biểu đồ Graphics2D, xuất CSV |
-
-## 📐 Tài liệu UML
-
-Thư mục `diagrams/` chứa 5 file PlantUML:
-
-- `UseCase.puml` — 14 Use Case, 2 Actor
-- `ClassDiagram_Model.puml` — 6 lớp Model (POJO)
-- `ClassDiagram_DAO.puml` — 7 lớp DAO + DatabaseConnection
-- `ClassDiagram_GUI.puml` — 10 lớp GUI + 4 Utils + Entry
-- `ERD.puml` — 6 bảng CSDL + quan hệ
+| 1 | Phạm Duy An | BIT240002 | Kiến trúc tổng thể, khởi tạo CSDL bất đồng bộ, giao diện chính, phân quyền |
+| 2 | Bùi Đào Đức Anh | BIT240025 | Quản lý sản phẩm, bộ lọc theo loại, cảnh báo tồn kho, tiện ích bảng |
+| 3 | Đỗ Tuấn Anh | BIT240015 | Quản lý khách hàng & nhân viên, đổi mật khẩu, EventBus |
+| 4 | Nguyễn Quang Hiếu | BIT240082 | Bán hàng (Stream API + Optional), chiết khấu, quản lý tài khoản |
+| 5 | Phan Văn Hiếu | BIT240094 | Hóa đơn, thống kê bất đồng bộ (SwingWorker), biểu đồ, xuất CSV |
 
 ## 📄 Công nghệ
 

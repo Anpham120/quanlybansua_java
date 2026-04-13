@@ -19,7 +19,7 @@ import java.util.Locale;
  * Hiển thị danh sách hóa đơn, lọc theo ngày / SĐT,
  * click chọn hàng → xem chi tiết sản phẩm bên dưới.
  *
- * @author Nguyễn Quang Hiếu - BIT240091
+ * @author Phan Văn Hiếu - BIT240094
  */
 public class HoaDonPanel extends JPanel {
 
@@ -33,7 +33,7 @@ public class HoaDonPanel extends JPanel {
     // Bảng chi tiết
     private DefaultTableModel modelCT;
 
-    // Filter controls
+    // Bộ lọc
     private JTextField txtSDT, txtTuNgay, txtDenNgay;
     private JLabel lblTongLoc;
 
@@ -69,14 +69,13 @@ public class HoaDonPanel extends JPanel {
             BorderFactory.createEmptyBorder(10, 10, 10, 10)
         ));
 
-        // ── Filter bar ──
+        // Thanh lọc
         JPanel filterBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
         filterBar.setBackground(UIConstants.BG_CARD);
 
         filterBar.add(new JLabel("SĐT khách:"));
         txtSDT = new JTextField(10);
         txtSDT.setFont(UIConstants.FONT_TABLE);
-        // Chỉ cho nhập số vào ô SĐT
         InputFilter.applyDigitsOnly(txtSDT);
         filterBar.add(txtSDT);
 
@@ -105,7 +104,7 @@ public class HoaDonPanel extends JPanel {
 
         panel.add(filterBar, BorderLayout.NORTH);
 
-        // ── Bảng hóa đơn ──
+        // Bảng hóa đơn
         String[] cot = {"STT", "Mã HD", "Ngày lập", "Nhân viên", "Khách hàng", "Tổng tiền (đ)"};
         modelHD = new DefaultTableModel(cot, 0) {
             public boolean isCellEditable(int r, int c) { return false; }
@@ -156,7 +155,7 @@ public class HoaDonPanel extends JPanel {
 
         panel.add(new JScrollPane(bangHD), BorderLayout.CENTER);
 
-        // ── Footer: tổng ──
+        // Tổng doanh thu
         lblTongLoc = new JLabel("Tổng doanh thu: 0 đ  |  0 hóa đơn", SwingConstants.RIGHT);
         lblTongLoc.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblTongLoc.setForeground(UIConstants.PRIMARY);
@@ -214,13 +213,12 @@ public class HoaDonPanel extends JPanel {
     // XỬ LÝ NGHIỆP VỤ
     // =========================================================
 
-    /** Validate ngày rồi mới lọc. */
+    /** Kiểm tra định dạng ngày rồi lọc. */
     private void xuLyLoc() {
         String tuNgay = txtTuNgay.getText().trim();
         String denNgay = txtDenNgay.getText().trim();
         String sdt = txtSDT.getText().trim();
 
-        // Validate ngày nếu có nhập
         if (!tuNgay.isEmpty() && !kiemTraNgay(tuNgay)) {
             JOptionPane.showMessageDialog(this,
                 "\"Từ ngày\" không hợp lệ!\nVui lòng nhập đúng định dạng dd/MM/yyyy (ví dụ: 01/03/2026)",
@@ -259,7 +257,7 @@ public class HoaDonPanel extends JPanel {
     /** Kiểm tra chuỗi có đúng định dạng dd/MM/yyyy không. */
     private boolean kiemTraNgay(String ngay) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        sdf.setLenient(false); // Không cho phép ngày không hợp lệ (32/13/2026)
+        sdf.setLenient(false);
         try {
             sdf.parse(ngay);
             return true;
@@ -293,7 +291,6 @@ public class HoaDonPanel extends JPanel {
 
     private void hienChiTiet(int dongDuocChon) {
         modelCT.setRowCount(0);
-        // Lấy ID từ cột 0 (dạng "HD-0001")
         String maHD = (String) modelHD.getValueAt(dongDuocChon, 1);
         int idHD = Integer.parseInt(maHD.replace("HD-", "").trim());
 

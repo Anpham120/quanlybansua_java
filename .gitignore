@@ -24,9 +24,14 @@ desktop.ini
 target/
 build/
 
-# === Khong up ===
-skills/
-*.docx
-
-export-docx.js
+# === Báo cáo & tài liệu ===
+BAO_CAO_DO_AN.md
 BAO_CAO_DO_AN.docx
+HuongDan_ChiTiet.md
+export-docx.js
+*.docx
+diagrams/
+
+# === Khác ===
+skills/
+node_modules/
